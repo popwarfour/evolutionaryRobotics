@@ -85,7 +85,10 @@ class RagdollDemo : public GlutDemoApplication
 	double previousTouch[4];
 	double synapseRecurrent[4][8];
 	int mask[4][8];
-	bool recurrentOn;
+	int hitInfo[8][100];
+	int maskMode;
+
+
 
 	
 public:
@@ -118,6 +121,15 @@ public:
 	//Assignment 9
 	double RagdollDemo::getRandomNumber();
 
+	//FINAL PROJECT
+	void calcMotorCommands();
+	void saveAndClose();
+	void showHitInfo();
+	void saveHitInfo(int counter);
+
+	int touchDisplayReset;
+	int newRandomReset;
+	int totalTimeStepCounter;
 
 	void initPhysics();
 

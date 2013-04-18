@@ -363,12 +363,12 @@ double width, double height)
 	body[index]->setCollisionFlags(body[index]->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 	collisionID[currentIndex] = new collisionObject(currentIndex, body[index]);
 	body[index]->setUserPointer(collisionID[currentIndex]);
-	
+	/*
 	cout << "OBJECT ID: " << collisionID[currentIndex]->id;
 	cout << " | POINTER ID: " << ((collisionObject*)body[index]->getUserPointer())->id;
 	cout << " | ADDRESS " << collisionID[currentIndex];
 	cout << " | FLAGS " << collisionID[currentIndex]->body->getCollisionFlags() << endl;
-
+	*/
 	currentIndex++;
 } 
 
@@ -388,12 +388,12 @@ void RagdollDemo::CreateCylinder(int index,double x, double y, double z,double l
 	collisionID[currentIndex] = new collisionObject(currentIndex, body[index]);
 	body[index]->setUserPointer(collisionID[currentIndex]);
 	
-	
+	/*
 	cout << "OBJECT ID: " << collisionID[currentIndex]->id;
 	cout << " | POINTER ID: " << ((collisionObject*)body[index]->getUserPointer())->id;
 	cout << " | ADDRESS " << collisionID[currentIndex];
 	cout << " | FLAGS " << collisionID[currentIndex]->body->getCollisionFlags() << endl;
-	
+	*/
 	currentIndex++;
 } 
 
@@ -537,7 +537,7 @@ void RagdollDemo::initPhysics()
 	//ASSIGNMENT 10
 	string line;
 	ifstream myfile("../../RAGDOLL_DATA/weights.txt");	
-	cout << "NORMAL SYNAPSE" << endl;
+	//cout << "NORMAL SYNAPSE" << endl;
 	for(int i = 0; i < 4; i++)
 	{
 		for(int k = 0; k < 8; k++)
@@ -545,16 +545,16 @@ void RagdollDemo::initPhysics()
 			getline(myfile,line);
 			stringstream convert(line);
 			convert >> synapseWeights[i][k];
-			cout << synapseWeights[i][k] << " | ";
+			//cout << synapseWeights[i][k] << " | ";
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	myfile.close();
 	
 	//GET RECURRENT SYNAPSE
 	line = "";
 	ifstream myfile3("../../RAGDOLL_DATA/recurrent.txt");	
-	cout << "RECURRNT SYNAPSE" << endl;
+	//cout << "RECURRNT SYNAPSE" << endl;
 	for(int i = 0; i < 4; i++)
 	{
 		for(int k = 0; k < 8; k++)
@@ -562,17 +562,18 @@ void RagdollDemo::initPhysics()
 			getline(myfile3,line);
 			stringstream convert(line);
 			convert >> synapseRecurrent[i][k];
-			cout << synapseRecurrent[i][k] << " | ";
+			//cout << synapseRecurrent[i][k] << " | ";
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	myfile.close();
 
 	// GET MASK
-	recurrentOn = false;
 	line = "";
-	cout << "PRINTING RECURRENT" << endl;
+	//cout << "PRINTING RECURRENT" << endl;
 	ifstream myfile2("../../RAGDOLL_DATA/mask.txt");	
+	bool foundOn = false;
+	bool foundOff = false;
 	for(int i = 0; i < 4; i++)
 	{
 		for(int k = 0; k < 8; k++)
@@ -580,24 +581,41 @@ void RagdollDemo::initPhysics()
 			getline(myfile2,line);
 			stringstream convert(line);
 			convert >> mask[i][k];
-			cout << mask[i][k] << " | ";
+			//cout << mask[i][k] << " | ";
 			if(mask[i][k] == 1)
 			{
-				recurrentOn = true;
+				foundOn = true;
+			}
+			else if(mask[i][k] == 0)
+			{
+				foundOff = true;
 			}
 		}
-		cout << endl;
+		//cout << endl;
 	}
 	myfile2.close();
 
-	cout << "INITIAL PEVIOUS TOUCH" << endl;
+	if(!foundOn && foundOff)
+	{
+		maskMode = 0;
+	}
+	else if(!foundOff && foundOn)
+	{
+		maskMode = 1;
+	}
+	else
+	{
+		maskMode = 2;
+	}
+
+	//cout << "INITIAL PEVIOUS TOUCH" << endl;
 	//INITIAL PREVIOUS STEP = 0
 	for(int i = 0; i < 4; i++)
 	{
 		previousTouch[i] = 0;
-		cout << previousTouch[i] << " | ";
+		//cout << previousTouch[i] << " | ";
 	}
-	cout << endl;
+	//cout << endl;
 
 
 	
@@ -636,10 +654,12 @@ void RagdollDemo::initPhysics()
 			collisionID[currentIndex] = new collisionObject(currentIndex, (btRigidBody *)groundShape);
 			fixedGround->setUserPointer(collisionID[currentIndex]);
 
+			/*
 			cout << "OBJECT ID: " << collisionID[currentIndex]->id;
 			cout << " | POINTER ID: " << ((collisionObject*)fixedGround->getUserPointer())->id;
 			cout << " | ADDRESS " << collisionID[currentIndex];
 			cout << " | FLAGS " << collisionID[currentIndex]->body->getCollisionFlags() << endl;
+			*/
 			currentIndex++;		
 		#else
 				localCreateRigidBody(btScalar(0.),groundTransform,groundShape);
@@ -676,7 +696,7 @@ void RagdollDemo::initPhysics()
 	RagdollDemo::CreateHinge(0,0,1, btVector3(0.0, 0.0, 1.0), btVector3(0.0, 0.0, 1.0), btVector3(1.0, 0.0, 0.0), btVector3(0.0, 1.0, 0.0));//WORKING
  	RagdollDemo::CreateHinge(1,0,2, btVector3(0.0, 0.0, 1.0), btVector3(0.0, 0.0, 1.0),btVector3(-1.0, 0.0, 0.0), btVector3(0.0, -1.0, 0.0));//WORKING
 	
-	clientResetScene();
+	//clientResetScene();
 }
 
 void RagdollDemo::spawnRagdoll(const btVector3& startOffset)
@@ -684,11 +704,6 @@ void RagdollDemo::spawnRagdoll(const btVector3& startOffset)
 	RagDoll* ragDoll = new RagDoll (m_dynamicsWorld, startOffset);
 	m_ragdolls.push_back(ragDoll);
 }	
-
-int touchDisplayReset = 0;
-int newRandomReset = 0;
-
-int totalTimeStepCounter = 0;
 
 void RagdollDemo::clientMoveAndDisplay()
 {
@@ -698,229 +713,253 @@ void RagdollDemo::clientMoveAndDisplay()
 	float ms = getDeltaTimeMicroseconds();
 	float minFPS = 1000000.f/60.f;
 	if (ms > minFPS)
-		//cout << "---------------------------------------------------------" << endl;
 		ms = minFPS;
 
-	if(totalTimeStepCounter < 1000)
+	glFlush();
+	glutSwapBuffers();
+
+	/*
+
+	THIS IS WHERE THE OLD CODE WAS......
+
+	*/
+}
+
+void RagdollDemo::saveAndClose()
+{		
+	//SAVE FITNESS
+	btVector3 centerOfMass = body[0]->getCenterOfMassPosition();
+	//cout << "Z POSITION OF CENTER OF MASS: " << centerOfMass.getZ() << endl;
+
+	//SAVING RESTULTS
+	ofstream myfile;
+	myfile.open ("../../RAGDOLL_DATA/fit.txt");
+	myfile << centerOfMass.getZ();
+	myfile.close();
+
+	
+	ofstream myfile2;
+	//cout << "++++++++++++++++++++++ MASK MODE: " << maskMode << endl;
+	/*
+	if(maskMode == 0)
 	{
-		//NORMAL RUNTIME LOOP
-		if (m_dynamicsWorld)
+		//OFF
+		myfile2.open ("../../RAGDOLL_DATA/hitInfoOff.txt");
+	}
+	else if(maskMode == 1)
+	{
+		myfile2.open ("../../RAGDOLL_DATA/hitInfoOn.txt");
+	}
+	else if(maskMode == 2)
+	{
+		myfile2.open ("../../RAGDOLL_DATA/hitInfoEvolved.txt");
+	}
+	*/
+	myfile2.open ("../../RAGDOLL_DATA/hitInfo.txt");
+	for(int i = 0; i < 100; i++)
+	{
+		for(int j = 0; j < 8; j++)
 		{
-			if(!pause || (pause && oneStep))
-			{			
-				//ACTUATE THE JOINTS!
-				if(newRandomReset == 50)
-				{
-					//double randomMultiplyer = M_PI_4/1.5;
-					double randomMultiplyer = M_PI_4/2;
-					double randomNum = 0.0;
-					double temp;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][0]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][0]) * mask[j][0];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(0, (-M_PI_2) + (randomNum * randomMultiplyer), 0, ms / 1000000.f); //WORKING CHECK -> ARM JOINT ***************
-				
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][1]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][1]) * mask[j][1];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(1, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f); //WORKING CHECK -> ARM JOINT ************** [][][]
-
-					//ROTATE
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][4]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][4]) * mask[j][4];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-			
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(4, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f); //WORKING CHECK -> ARM JOINT ************ [][][]
-				
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][7]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][7]) * mask[j][7];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(7, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f); //WORKING CHECK -> ARM JOINT **************
-
-					//ARMS -> FEET
-					//NORMAL
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][3]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][3]) * mask[j][3];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(3, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f);//WORKING CHECK -> LEG JOINT ***********************
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][2]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][2]) * mask[j][2];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(2, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f); //WORKING CHECK -> LEG JOINT ***************
-				
-					//ROTATED
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][6]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][6]) * mask[j][6];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(6, (M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f); //WORKING CHECK -> LEG JOINT*****************
-				
-					randomNum = 0.0;
-					for (int j=0; j<4; j++)
-					{
-						int id = j + 2;
-						//USING CURRENT TOUCH DATA
-						randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][5]);
-						//USING PREVIOUS TOUCH DATA
-						randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][5]) * mask[j][5];
-						//STORE PREVIOUS TOUCH DATA
-						previousTouch[j] = collisionID[id]->hit;
-					}
-					randomNum = tanh(randomNum);
-					//cout << (randomNum * randomMultiplyer) << " | ";
-					ActuateJoint(5, (M_PI_2) + (randomNum *  randomMultiplyer), 0, ms / 1000000.f); // RORATION OFFF -> LEG JOINT ************
-
-					newRandomReset = 0;
-					//cout << endl;
-				}
-				newRandomReset++;
-			
-
-				//PRINTING HIT INFORMATION --- RESETTING COLLLIOSIONID ARRAY HIT TO FALSE
-				if(touchDisplayReset == 10)
-				{
-					//CHECK IF NOT COLLISION REMOVE HIT FLAG!
-					for(int i = 2; i < 10; i++)
-					{
-						if(collisionID[i]->hit)
-						{
-							cout << "##";
-							//cout << collisionID[i]->id << " | " << touches[i].getX() << touches[i].getY() << touches[i].getZ() << endl; 
-						}
-						else
-						{
-							cout << "  ";
-						}		
-						collisionID[i]->hit = false;
-						ragdolldemo->touches[i] = btVector3(btScalar(200),btScalar(0),btScalar(200));
-					}
-					cout << endl;
-					touchDisplayReset = 0;
-				}
-				touchDisplayReset++;
-
-				m_dynamicsWorld->stepSimulation(ms / 1000000.f);
-				oneStep = FALSE;	
-
-				totalTimeStepCounter++;
-				//cout << totalTimeStepCounter << endl;
-			}
-			//optional but useful: debug drawing
-
-			m_dynamicsWorld->debugDrawWorld();	
-			
+			myfile2 << hitInfo[j][i] << "\n";
+			//cout << hitInfo[j][i] << "|";
 		}
-
-		renderme(); 
-
-		
-		glFlush();
-		glutSwapBuffers();
-		
+		//cout << endl;
 	}
-	else
+	myfile2.close();
+	
+
+	//EXIT
+	exit(0);
+}
+
+void RagdollDemo::calcMotorCommands()
+{
+	//NORMAL RUNTIME LOOP
+	
+	//double randomMultiplyer = M_PI_4/1.5;
+	double randomMultiplyer = M_PI_4/1.5;
+	double randomNum = 0.0;
+	double temp;
+	for (int j=0; j<4; j++)
 	{
-		//RUNTIME LOOP IS OVER
-
-		//SAVE FITNESS
-		btVector3 centerOfMass = body[0]->getCenterOfMassPosition();
-		cout << "Z POSITION OF CENTER OF MASS: " << centerOfMass.getZ() << endl;
-
-		//SAVING RESTULTS
-		ofstream myfile;
-		myfile.open ("../../RAGDOLL_DATA/fit.txt");
-		myfile << centerOfMass.getZ();
-		myfile.close();
-
-		/*
-		//PAUSE		
-		t = time(NULL) + 3;
-		while (time(NULL) < t);
-		*/
-
-		//EXIT
-		exit(0);
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][0]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][0]) * mask[j][0];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
 	}
+					
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(0, (-M_PI_2) + (randomNum * randomMultiplyer), 0, 0); //WORKING CHECK -> ARM JOINT ***************
+				
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][1]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][1]) * mask[j][1];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(1, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, 0); //WORKING CHECK -> ARM JOINT ************** [][][]
+
+	//ROTATE
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][4]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][4]) * mask[j][4];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+			
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(4, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, 0); //WORKING CHECK -> ARM JOINT ************ [][][]
+				
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][7]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][7]) * mask[j][7];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(7, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, 0); //WORKING CHECK -> ARM JOINT **************
+
+	//ARMS -> FEET
+	//NORMAL
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][3]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][3]) * mask[j][3];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(3, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, 0);//WORKING CHECK -> LEG JOINT ***********************
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][2]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][2]) * mask[j][2];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(2, (-M_PI_2) + (randomNum *  randomMultiplyer), 0, 0); //WORKING CHECK -> LEG JOINT ***************
+				
+	//ROTATED
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][6]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][6]) * mask[j][6];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(6, (M_PI_2) + (randomNum *  randomMultiplyer), 0, 0); //WORKING CHECK -> LEG JOINT*****************
+				
+	randomNum = 0.0;
+	for (int j=0; j<4; j++)
+	{
+		int id = j + 2;
+		//USING CURRENT TOUCH DATA
+		randomNum = randomNum + (collisionID[id]->hit * synapseWeights[j][5]);
+		//USING PREVIOUS TOUCH DATA
+		randomNum = randomNum + (previousTouch[j] * synapseRecurrent[j][5]) * mask[j][5];
+		//STORE PREVIOUS TOUCH DATA
+		previousTouch[j] = collisionID[id]->hit;
+	}
+	randomNum = tanh(randomNum);
+	//cout << (randomNum * randomMultiplyer) << " | ";
+	ActuateJoint(5, (M_PI_2) + (randomNum *  randomMultiplyer), 0, 0); // RORATION OFFF -> LEG JOINT ************
+
+				
+
+
+	//OLD TIME STEP INCREMENTER PLACE!!!
+	oneStep = FALSE;	
+
+	totalTimeStepCounter++;
+		
+}
+
+void RagdollDemo::showHitInfo()
+{
+	for(int i = 2; i < 10; i++)
+	{
+		if(collisionID[i]->hit)
+		{
+			//cout << "##";
+		}
+		else
+		{
+			//cout << "  ";
+		}		
+		collisionID[i]->hit = false;
+		ragdolldemo->touches[i] = btVector3(btScalar(200),btScalar(0),btScalar(200));
+	}
+	//cout << endl;
+}
+
+void RagdollDemo::saveHitInfo(int counter)
+{
+	//cout << "------" << counter << endl;
+	for(int i = 2; i < 10; i++)
+	{
+		if(collisionID[i]->hit)
+		{
+			hitInfo[i-2][counter] = 1;
+		}
+		else
+		{
+			hitInfo[i-2][counter] = 0;
+		}
+		//cout << hitInfo[i-2][counter] << " | ";
+		collisionID[i]->hit = false;
+	}
+	//cout << endl;
 }
 
 void RagdollDemo::displayCallback()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
-	renderme();
+	//renderme();
 
 	//optional but useful: debug drawing
 	if (m_dynamicsWorld)
-		m_dynamicsWorld->debugDrawWorld();
+		//m_dynamicsWorld->debugDrawWorld();
 
 	glFlush();
 	glutSwapBuffers();

@@ -80,6 +80,75 @@ def MatrixPerturb(Parent,Probability):
                 p[row][col] = uniform(-1,1)
     return p
 
+def saveGenerationData_On(generation):
+    with open("../../RAGDOLL_DATA/generationData_On.txt", 'w') as f:
+       for j in range(len(generation)):
+            f.write("%f\n" % generation[j])
+
+def saveGenerationData_Off(generation):
+    with open("../../RAGDOLL_DATA/generationData_Off.txt", 'w') as f:    
+        for j in range(len(generation)):
+            f.write("%f\n" % generation[j])
+
+
+def saveGenerationData_Evolve(generation):
+    with open("../../RAGDOLL_DATA/generationData_Evolve.txt", 'w') as f:
+        for j in range(len(generation)):
+            f.write("%f\n" % generation[j])
+
+def saveHitInfoAsBest_On():
+    hitInfo = MatrixCreate(8,100)
+    f = open("../../RAGDOLL_DATA/hitInfo.txt", "r")
+    #GET RETURNED FITNESS
+    for i in range(len(hitInfo)):
+        for j in range(len(hitInfo[0])):
+            hitInfo[i][j] = f.readline()
+
+
+    line = ""
+    with open("../../RAGDOLL_DATA/bestHitInfo_On.txt", 'w') as f:
+        for i in range(len(hitInfo)):
+            for j in range(len(hitInfo[0])):
+                f.write("%f\n" % hitInfo[i][j])
+                line = line, hitInfo[i][j], " "
+            #print line
+            line = ""
+
+def saveHitInfoAsBest_Off():
+    hitInfo = MatrixCreate(8,100)
+    f = open("../../RAGDOLL_DATA/hitInfo.txt", "r")
+    #GET RETURNED FITNESS
+    for i in range(len(hitInfo)):
+        for j in range(len(hitInfo[0])):
+            hitInfo[i][j] = f.readline()
+
+
+    line = ""
+    with open("../../RAGDOLL_DATA/bestHitInfo_Off.txt", 'w') as f:
+        for i in range(len(hitInfo)):
+            for j in range(len(hitInfo[0])):
+                f.write("%f\n" % hitInfo[i][j])
+                line = line, hitInfo[i][j], " "
+            #print line
+            line = ""
+
+def saveHitInfoAsBest_Evolve():
+    hitInfo = MatrixCreate(8,100)
+    f = open("../../RAGDOLL_DATA/hitInfo.txt", "r")
+    #GET RETURNED FITNESS
+    for i in range(len(hitInfo)):
+        for j in range(len(hitInfo[0])):
+            hitInfo[i][j] = f.readline()
+
+
+    line = ""
+    with open("../../RAGDOLL_DATA/bestHitInfo_Evolved.txt", 'w') as f:
+        for i in range(len(hitInfo)):
+            for j in range(len(hitInfo[0])):
+                f.write("%f\n" % hitInfo[i][j])
+                line = line, hitInfo[i][j], " "
+            #print line
+            line = ""
 
 def Send_Synapse_Weights_ToFile(synapses,weightsFileName):
     #print "SHOW SYNAPSE"
@@ -91,6 +160,7 @@ def Send_Synapse_Weights_ToFile(synapses,weightsFileName):
                 line = line, synapses[i][j], " "
             #print line
             line = ""
+            
 def Send_Mask_ToFile(synapses,weightsFileName):
     #print "SHOWING MASK"
     line = ""
@@ -150,7 +220,7 @@ def Fitness3_Get(parentSynapse, parentRecurrent, parentMask):
         
     #GET RETURNED FITNESS
     f = open(fitFileName, "r")
-    fitness = f.readline()
+    fitness = f.readline() 
 
     #PAUSE
     time.sleep(0.2)
@@ -190,10 +260,8 @@ def HillClimberProbe(proGenerations, experimentType):
         #TURN ON RENDERING SYNAPSE
         #RENDER OR DONT
         if(i % 10 == 0):
-            print "----------------RENDERING PROBE----------"
-            Send_Render_toFile(1,"../../RAGDOLL_DATA/render.txt");
+           Send_Render_toFile(1,"../../RAGDOLL_DATA/render.txt");
         else:
-            print "----------------NOT RENDERING PROBE----------"
             Send_Render_toFile(0,"../../RAGDOLL_DATA/render.txt");
 
         #GET FITNESS
@@ -204,19 +272,7 @@ def HillClimberProbe(proGenerations, experimentType):
             bestSynapse = childSynapse
             bestRecurrent = childRecurrent
             bestMask = childMask
-        
-
-        #SAVE BEST SYNAPSE DATA
-        location = "../../RAGDOLL_DATA/RECURRENT_PROBE/BESTsynapse" + str(i) + ".txt"
-        Send_Synapse_Weights_ToFile(bestSynapse,location)
-
-        #SAVE BEST MASK
-        location = "../../RAGDOLL_DATA/RECURRENT_PROBE/BESTrecurrent" + str(i) + ".txt"
-        Send_Synapse_Weights_ToFile(bestRecurrent,location)
-
-        #SAVE BEST MASK
-        location = "../../RAGDOLL_DATA/RECURRENT_PROBE/BESTmask" + str(i) + ".txt"
-        Send_Mask_ToFile(bestMask,location)
+            
     return bestSynapse, bestRecurrent, bestMask, bestFitness
 
 def HillClimber(generations, incomingSynapse, incomingRecurrent, incomingMask, incomingFitness, experimentType):
@@ -229,17 +285,15 @@ def HillClimber(generations, incomingSynapse, incomingRecurrent, incomingMask, i
     parentRecurrent = incomingRecurrent
     parentSynapse = incomingSynapse
     parentMask = incomingMask
-    parentFitness = incomingFitness
+    parentFitness = 0
 
 
     #RUN THE EVOLUTION!
     for i in range(generations):
         #RENDER OR DONT
         if(i % 10 == 0):
-            print "----------------RENDERING----------"
             Send_Render_toFile(1,"../../RAGDOLL_DATA/render.txt");
         else:
-            print "----------------NOT RENDERING----------"
             Send_Render_toFile(0,"../../RAGDOLL_DATA/render.txt");
         
         #Create Child Synapse
@@ -266,23 +320,44 @@ def HillClimber(generations, incomingSynapse, incomingRecurrent, incomingMask, i
             parentFitness = childFitness
             parentMask = childMask
             parentRecurrent = childRecurrent;
+            if(experimentType == 0):
+                saveHitInfoAsBest_Off()
+                #SAVE MASK DATA
+                location = "../../RAGDOLL_DATA/bestMaskData_Off.txt"
+                Send_Mask_ToFile(parentMask,location);
+                #SAVE syanpse DATA
+                location = "../../RAGDOLL_DATA/bestSynapseData_Off.txt"
+                Send_Synapse_Weights_ToFile(parentSynapse,location)
+                #SAVE recurrent DATA
+                location = "../../RAGDOLL_DATA/bestRecurrentData_Off.txt"
+                Send_Synapse_Weights_ToFile(parentRecurrent,location)
+            elif(experimentType == 1):
+                saveHitInfoAsBest_On()
+                #SAVE MASK DATA
+                location = "../../RAGDOLL_DATA/bestMaskData_On.txt"
+                Send_Mask_ToFile(parentMask,location);
+                #SAVE syanpse DATA
+                location = "../../RAGDOLL_DATA/bestSynapseData_On.txt"
+                Send_Synapse_Weights_ToFile(parentSynapse,location)
+                #SAVE recurrent DATA
+                location = "../../RAGDOLL_DATA/bestRecurrentData_On.txt"
+                Send_Synapse_Weights_ToFile(parentRecurrent,location)
+            elif(experimentType == 2):
+                saveHitInfoAsBest_Evolve()
+                #SAVE MASK DATA
+                location = "../../RAGDOLL_DATA/bestMaskData_Evolved.txt"
+                Send_Mask_ToFile(parentMask,location);
+                #SAVE syanpse DATA
+                location = "../../RAGDOLL_DATA/bestSynapseData_Evolved.txt"
+                Send_Synapse_Weights_ToFile(parentSynapse,location)
+                #SAVE recurrent DATA
+                location = "../../RAGDOLL_DATA/bestRecurrentData_Evolved.txt"
+                Send_Synapse_Weights_ToFile(parentRecurrent,location)
         
         #Add fitness to generation matrix
         generationFitness[i] = parentFitness
         print "Generation: ", i, " | ", parentFitness, " | ", childFitness
-             
-        #SAVE MASK DATA
-        location = "../../RAGDOLL_DATA/RECURRENT/maskData" + str(i) + ".txt"
-        Send_Mask_ToFile(parentMask,location);
-        
-        #SAVE syanpse DATA
-        location = "../../RAGDOLL_DATA/RECURRENT/synapseData" + str(i) + ".txt"
-        Send_Synapse_Weights_ToFile(parentSynapse,location)
-
-        #SAVE recurrent DATA
-        location = "../../RAGDOLL_DATA/RECURRENT/recurrentData" + str(i) + ".txt"
-        Send_Synapse_Weights_ToFile(parentRecurrent,location)
-        
+            
     return parentSynapse, parentRecurrent, generationFitness
 
 def Main(generations,lineages):
@@ -329,12 +404,19 @@ def assign10(generations, lineages, probes):
     print "-------EVOLUTION WITH RECURRENT AND MASK------"
     fitnessGenerationsMask = MainWithProbe(generations,lineages,probes, 2)
 
-    plot = plt.plot(fitnessGenerationsWithout)
-    plot = plt.plot(fitnessGenerationsOn)
-    plot = plt.plot(fitnessGenerationsMask)
+    #SAVE GENERATION DATA
+    saveGenerationData_Off(fitnessGenerationsWithout)
+    saveGenerationData_On(fitnessGenerationsOn)
+    saveGenerationData_Evolve(fitnessGenerationsMask)
+    
+
+    plot = plt.plot(fitnessGenerationsWithout, label="No Recurrent")
+    plot = plt.plot(fitnessGenerationsOn, label="All Recurrent")
+    plot = plt.plot(fitnessGenerationsMask, label="Evolved Recurrent")
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     plt.show(plot)
 
 def fromFile(generations):
     MainFromFile(generations, 1, "../../RAGDOLL_DATA/bestParent.txt");
 
-assign10(1000, 1, 100)
+assign10(1000, 1, 50)

@@ -22,11 +22,37 @@ GLDebugDrawer	gDebugDrawer;
 
 int main(int argc,char* argv[])
 {
-        RagdollDemo demoApp;
+    RagdollDemo demoApp;
 
-        demoApp.initPhysics();
-		
-		demoApp.getDynamicsWorld()->setDebugDrawer(&gDebugDrawer);
+    demoApp.initPhysics();
 
-        return glutmain(argc, argv,640,480,"Bullet Physics Demo. http://bulletphysics.com",&demoApp);
+	int i = 0;
+	int infoHitCounter = 0;
+    float ms = demoApp.getDeltaTimeMicroseconds();
+	float minFPS = 1000000.f/60.f;
+	if (ms > minFPS)
+	{
+		ms = minFPS;
+	}
+
+	while(i<1000)
+	{
+		demoApp.getDynamicsWorld()->stepSimulation(ms / 1000000.f);
+			
+		if(i % 50 == 0)
+		{
+			//EVERY 50 TIME STEPS UPDATE MOTORS
+			demoApp.calcMotorCommands();
+		}
+
+		if(i % 10 == 0)
+		{
+			//SHOW TOUCH INFORMATION
+			//demoApp.showHitInfo();
+			demoApp.saveHitInfo(infoHitCounter);
+			infoHitCounter++;
+		}
+		i++;
+	}
+	demoApp.saveAndClose();	
 }
