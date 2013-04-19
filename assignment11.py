@@ -419,4 +419,4 @@ def assign10(generations, lineages, probes):
 def fromFile(generations):
     MainFromFile(generations, 1, "../../RAGDOLL_DATA/bestParent.txt");
 
-assign10(1000, 1, 50)
+assign10(2000, 1, 50)
